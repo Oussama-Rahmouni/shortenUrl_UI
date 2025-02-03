@@ -5,16 +5,19 @@ import './App.css';
 function App() {
   const [url, setUrl] = useState<string>(''); 
   const [shortenedId, setShortenedId] = useState<string>(''); 
-  const [result, setResult] = useState<string>(''); 
-  const [exist, setExist] = useState<string>(''); 
+  const [result, setResult] = useState<string>(''); //list of shortned urls
+  const [exist, setExist] = useState<string>(''); //old shortned url if exist
   const [error, setError] = useState<string>(''); 
   const [warning, setWarning] = useState<string>('');
   const [expiration, setExpiration] = useState<string>('24h'); 
   const [expirationTime, setExpirationTime] = useState<string>(''); 
   const [bulkUrls, setBulkUrls] = useState<File | null>(null); 
-  const [bulkUrlsResult, setBulkUrlsResult] = useState<any[]>(); 
+  const [bulkUrlsResult, setBulkUrlsResult] = useState<any[]>(); //if you upload file of already shortned urls
+  const [submited, setSubmited] = useState<any>(null);
 
 
+
+  // change date format to display
   const dateFormat = (expiration:any)=>{
     const date = new Date(expiration);
      const formattedDate = date.toISOString().replace("T", " ").slice(0, 19);
@@ -22,11 +25,13 @@ function App() {
 
   }
 
+  // verify Url validity 
   const verifyUrl = (url: string) => {
     const regex = /^(https?:\/\/)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,6}(\S*)$/i;
     return regex.test(url);
   };
 
+  //verify if the used protocol is HTTPS 
   const verifyHttps = (url: string) => {
     return url.startsWith('http://');
   };
@@ -39,7 +44,7 @@ function App() {
     }
 
     if (!verifyUrl(url)) {
-      setError('Please verify if the URL is valid');
+      setError('Url Not Valid, verify Your Url !');
       return;
     }
 
@@ -53,7 +58,7 @@ function App() {
     try {
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/shorten`, { 
         baseUrl: url,
-        expiration // Send expiration to the backend
+        expiration 
       });
       if (response.data.special) {
         setExist(response.data.message);
@@ -81,9 +86,10 @@ function App() {
 
     const formData = new FormData();
     formData.append('file', bulkUrls);
-    formData.append('expiration', expiration); // Send expiration to the backend
+    formData.append('expiration', expiration);
 
     try {
+      setSubmited(true)
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/bulk-shorten`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -91,9 +97,10 @@ function App() {
       });
       alert('Bulk URLs shortened successfully!');
       setBulkUrlsResult(response.data.shortenedUrls)
-      console.log("voila",response.data.shortenedUrls); // Log the response (shortened URLs)
     } catch (err) {
       setError('Error shortening bulk URLs!');
+    }finally{
+      setSubmited(false)
     }
   };
   // Handle redirect with shortened URL
@@ -117,6 +124,7 @@ function App() {
     }
   };
 
+  //copy single url
   const handleCopy = () => {
     if (result) {
       navigator.clipboard.writeText(result);
@@ -124,14 +132,20 @@ function App() {
     }
   };
 
+  //copy multple urls
+  const handleBulkCopy = (shortenedId: string) => {
+    navigator.clipboard.writeText(shortenedId);
+    alert('Shortened URL copied to clipboard!');
+  };
+
   useEffect(()=>{
-    console.log("hay lbulk", bulkUrlsResult)
   },[bulkUrlsResult])
 
   return (
     <div className="container">
       <h1 className="title">URL Shortener</h1>
 
+      {/* Shortend single url */}
       <div className="url-input-container">
         <h2>Shorten Your URL</h2>
         <input
@@ -148,11 +162,11 @@ function App() {
           <option value="48h">48 Hours</option>
           <option value="7d">7 Days</option>
         </select>
-        <button onClick={handleUrlShorten} className="primary-btn">Shorten URL</button>
+        <button onClick={handleUrlShorten} disabled={submited} className="primary-btn">Shorten URL</button>
         {warning && <h4 style={{ color: 'pink' }}>{warning}</h4>}
         {result && (
           <div className="shortened-url">
-            {exist && <h3>This URL was already shortened before</h3>}
+            {exist && <h3>This URL has been shortened before !</h3>}
              {expirationTime && <h5>Expiration Date: {expirationTime}</h5>}
             <p>Shortened URL:</p>
             <a href={result} target="_blank" rel="noopener noreferrer">{result}</a>
@@ -161,6 +175,7 @@ function App() {
         )}
       </div>
 
+      {/* Shortend file of  urls */}
       <div className="bulk-url-container">
         <h2>Bulk Shorten URLs</h2>
         <input
@@ -172,12 +187,13 @@ function App() {
           bulkUrlsResult.map((doc, index)=>(
             <div key={index}>
              <p>shortenUrl: <strong>{doc.shortenedId}</strong></p>
-             <button onClick={handleCopy} className="secondary-btn">Copy URL</button>
+             <button onClick={()=>handleBulkCopy(doc.shortenedId)} className="secondary-btn">Copy URL</button>
             </div>
         )))}
-        <button onClick={handleBulkShorten} className="primary-btn">Shorten Bulk URLs</button>
+        <button onClick={handleBulkShorten} disabled={submited}  className="primary-btn" >{submited ? "Submiting request ...": "Shorten a groupe of urls"}</button>
       </div>
 
+        {/* go back to the original base URL */}
       <div className="shortened-url-container">
         <h2>Redirect from Shortened URL</h2>
         <input
