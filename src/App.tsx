@@ -119,7 +119,7 @@ function App() {
       window.location.href = response.data.baseUrl; // Redirect the user to the base URL
       setError('');
     } catch (err) {
-      setError('Shortened URL not found!');
+      setError('Shortened URL not valid, it should be 6 caracters!');
       setResult('');
     }
   };
