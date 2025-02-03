@@ -90,13 +90,12 @@ function App() {
         },
       });
       alert('Bulk URLs shortened successfully!');
-      setBulkUrlsResult(response.data.shortnedUrls)
-      console.log(response.data); // Log the response (shortened URLs)
+      setBulkUrlsResult(response.data.shortenedUrls)
+      console.log("voila",response.data.shortenedUrls); // Log the response (shortened URLs)
     } catch (err) {
       setError('Error shortening bulk URLs!');
     }
   };
-
   // Handle redirect with shortened URL
   const handleRedirect = async () => {
     if (!shortenedId) {
@@ -124,6 +123,10 @@ function App() {
       alert('Shortened URL copied to clipboard!');
     }
   };
+
+  useEffect(()=>{
+    console.log("hay lbulk", bulkUrlsResult)
+  },[bulkUrlsResult])
 
   return (
     <div className="container">
@@ -168,7 +171,7 @@ function App() {
         {bulkUrlsResult && (
           bulkUrlsResult.map((doc, index)=>(
             <div key={index}>
-             <a href={result} target="_blank" rel="noopener noreferrer">{doc.shortenedId.shortenedId}</a>
+             <p>shortenUrl: <strong>{doc.shortenedId}</strong></p>
              <button onClick={handleCopy} className="secondary-btn">Copy URL</button>
             </div>
         )))}
