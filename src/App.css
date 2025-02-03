@@ -1,36 +1,123 @@
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 50px;
+/* General Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-h1, h2 {
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+  width: 400px;
+}
+
+h1.title {
   color: #333;
+  font-size: 32px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+h2 {
+  color: #444;
+  margin-bottom: 10px;
 }
 
 input {
-  padding: 10px;
-  margin: 10px;
-  width: 300px;
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
   border-radius: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
+  font-size: 16px;
 }
 
-button {
-  padding: 10px;
-  width: 150px;
-  border: none;
+button.primary-btn {
+  width: 100%;
+  padding: 12px;
   background-color: #4CAF50;
   color: white;
+  border: none;
   border-radius: 5px;
   cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  transition: background-color 0.3s;
 }
 
-button:hover {
+button.primary-btn:hover {
   background-color: #45a049;
 }
 
+button.secondary-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+button.secondary-btn:hover {
+  background-color: #0056b3;
+}
+
+.shortened-url {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.shortened-url a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.shortened-url a:hover {
+  text-decoration: underline;
+}
+
 .error {
-  color: red;
+  color: #d9534f;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .container {
+    width: 100%;
+    padding: 20px;
+  }
+
+  h1.title {
+    font-size: 24px;
+  }
+
+  button {
+    font-size: 14px;
+  }
+
+  input {
+    font-size: 14px;
+  }
 }

@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import './App.css'
+import './App.css';
 
 function App() {
   const [url, setUrl] = useState<string>(''); 
-  const [shortnedId, setShortnedId] = useState<string>(''); 
+  const [shortenedId, setShortenedId] = useState<string>(''); 
   const [result, setResult] = useState<string>(''); 
+  const [exist, setExist] = useState<string>(''); 
   const [error, setError] = useState<string>(''); 
 
   // Handle URL shortening
@@ -16,7 +17,15 @@ function App() {
     }
     try {
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/shorten`, { baseUrl: url });
-      setResult(response.data.message); // Assuming response contains the shortened URL in message
+      console.log(response)
+      if(response.data.special){
+        setExist(response.data.message)
+      }else{
+        setExist('')
+      }
+      
+      setResult(response.data.shortnedId); 
+      
       setError('');
     } catch (err) {
       setError('Error shortening the URL!');
@@ -26,13 +35,13 @@ function App() {
 
   // Handle redirect with shortened URL
   const handleRedirect = async () => {
-    if (!shortnedId) {
+    if (!shortenedId) {
       setError('Please provide a shortened URL!');
       return;
     }
 
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/${shortnedId}`);
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/${shortenedId}`);
       window.location.href = response.data.baseUrl; // Redirect the user to the base URL
       setError('');
     } catch (err) {
@@ -41,9 +50,21 @@ function App() {
     }
   };
 
-    return (
-      <div className="container">
-      <h1>URL Shortener</h1>
+  const handleCopy = () => {
+    if (result) {
+      navigator.clipboard.writeText(result);
+      alert('Shortened URL copied to clipboard!');
+    }
+  };
+
+  useEffect(()=>{
+
+  }, [result])
+
+  return (
+    <div className="container">
+      <h1 className="title">URL Shortener</h1>
+
       <div className="url-input-container">
         <h2>Shorten Your URL</h2>
         <input
@@ -52,8 +73,16 @@ function App() {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <button onClick={handleUrlShorten}>Shorten URL</button>
-        {result && <p>Shortened URL: <a href={result} target="_blank" rel="noopener noreferrer">{result}</a></p>}
+        <button onClick={handleUrlShorten} className="primary-btn">Shorten URL</button>
+
+        {result && (
+          <div className="shortened-url">
+            {exist && <h3>This url already shortned before</h3>}
+            <p>Shortened URL:</p>
+            <a href={result} target="_blank" rel="noopener noreferrer">{result}</a>
+            <button onClick={handleCopy} className="secondary-btn">Copy URL</button>
+          </div>
+        )}
       </div>
 
       <div className="shortened-url-container">
@@ -61,15 +90,14 @@ function App() {
         <input
           type="text"
           placeholder="Enter shortened URL"
-          value={shortnedId}
-          onChange={(e) => setShortnedId(e.target.value)}
+          value={shortenedId}
+          onChange={(e) => setShortenedId(e.target.value)}
         />
-        <button onClick={handleRedirect}>Go to Base URL</button>
+        <button onClick={handleRedirect} className="primary-btn">Go to Base URL</button>
         {error && <p className="error">{error}</p>}
       </div>
     </div>
-    );
-  };
+  );
+}
 
-
-export default App
+export default App;
