@@ -14,6 +14,8 @@ function App() {
   const [bulkUrls, setBulkUrls] = useState<File | null>(null); 
   const [bulkUrlsResult, setBulkUrlsResult] = useState<any[]>(); //if you upload file of already shortned urls
   const [submited, setSubmited] = useState<any>(null);
+  const [isSubmited, setIsSubmited] = useState<any>(false);
+
 
 
 
@@ -56,6 +58,7 @@ function App() {
     }
 
     try {
+      setIsSubmited(true)
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/shorten`, { 
         baseUrl: url,
         expiration 
@@ -74,6 +77,8 @@ function App() {
     } catch (err) {
       setError('Error shortening the URL!');
       setResult('');
+    }finally{
+      setIsSubmited(false)
     }
   };
 
@@ -162,7 +167,7 @@ function App() {
           <option value="48h">48 Hours</option>
           <option value="7d">7 Days</option>
         </select>
-        <button onClick={handleUrlShorten} disabled={submited} className="primary-btn">Shorten URL</button>
+        <button onClick={handleUrlShorten} disabled={isSubmited} className="primary-btn">{isSubmited?"submiting request": "Shorten URL"}</button>
         {warning && <h4 style={{ color: 'pink' }}>{warning}</h4>}
         {result && (
           <div className="shortened-url">
